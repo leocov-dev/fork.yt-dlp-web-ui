@@ -85,7 +85,7 @@ func RunBlocking(rc *RunConfig) {
 
 	var logLevel = slog.LevelInfo
 	if DEBUG == "" {
-		var logLevel = slog.LevelDebug
+		logLevel = slog.LevelDebug
 	}
 
 	logger := slog.New(slog.NewTextHandler(io.MultiWriter(logWriters...), &slog.HandlerOptions{
