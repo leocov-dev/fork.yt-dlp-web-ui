@@ -179,10 +179,7 @@ func newServer(c serverConfig) *http.Server {
 	}
 
 	baseUrl := config.Instance().BaseURL
-	if baseUrl != "" {
-		baseUrl = baseUrl + "/"
-	}
-	r.Mount(baseUrl, http.StripPrefix(baseUrl, http.FileServerFS(c.frontend)))
+	r.Mount(baseUrl+"/", http.StripPrefix(baseUrl, http.FileServerFS(c.frontend)))
 
 	// swagger
 	r.Mount("/openapi", http.FileServerFS(c.swagger))

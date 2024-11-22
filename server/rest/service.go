@@ -57,6 +57,9 @@ func (s *Service) Running(ctx context.Context) (*[]internal.ProcessResponse, err
 
 func (s *Service) GetCookies(ctx context.Context) ([]byte, error) {
 	fd, err := os.Open("cookies.txt")
+	if errors.Is(err, os.ErrNotExist) {
+		fd, err = os.Create("cookies.txt")
+	}
 	if err != nil {
 		return nil, err
 	}
