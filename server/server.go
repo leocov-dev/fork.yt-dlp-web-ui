@@ -5,6 +5,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/go-chi/chi/v5/middleware"
 	"io"
 	"io/fs"
 	"log/slog"
@@ -47,6 +48,8 @@ type serverConfig struct {
 	lm       *livestream.Monitor
 }
 
+var DEBUG = os.Getenv("DEBUG")
+
 // TODO: change scope
 var observableLogger = logging.NewObservableLogger()
 
@@ -80,8 +83,13 @@ func RunBlocking(rc *RunConfig) {
 		logWriters = append(logWriters, logger)
 	}
 
+	var logLevel = slog.LevelInfo
+	if DEBUG == "" {
+		var logLevel = slog.LevelDebug
+	}
+
 	logger := slog.New(slog.NewTextHandler(io.MultiWriter(logWriters...), &slog.HandlerOptions{
-		Level: slog.LevelInfo, // TODO: detect when launched in debug mode -> slog.LevelDebug
+		Level: logLevel,
 	}))
 
 	// make the new logger the default one with all the new writers
@@ -165,11 +173,16 @@ func newServer(c serverConfig) *http.Server {
 	})
 
 	r.Use(corsMiddleware.Handler)
-	// use in dev
-	// r.Use(middleware.Logger)
+
+	if DEBUG != "" {
+		r.Use(middleware.Logger)
+	}
 
 	baseUrl := config.Instance().BaseURL
-	r.Mount(baseUrl+"/", http.StripPrefix(baseUrl, http.FileServerFS(c.frontend)))
+	if baseUrl != "" {
+		baseUrl = baseUrl + "/"
+	}
+	r.Mount(baseUrl, http.StripPrefix(baseUrl, http.FileServerFS(c.frontend)))
 
 	// swagger
 	r.Mount("/openapi", http.FileServerFS(c.swagger))
