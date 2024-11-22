@@ -52,7 +52,6 @@ import { validateDomain, validateIP } from '../utils'
 // NEED ABSOLUTELY TO BE SPLIT IN MULTIPLE COMPONENTS
 export default function Settings() {
   const [reverseProxy, setReverseProxy] = useAtom(servedFromReverseProxyState)
-  const [baseURL, setBaseURL] = useAtom(servedFromReverseProxySubDirState)
 
   const [formatSelection, setFormatSelection] = useAtom(formatSelectionState)
   const [pathOverriding, setPathOverriding] = useAtom(pathOverridingState)
@@ -74,19 +73,8 @@ export default function Settings() {
 
   const { pushMessage } = useToast()
 
-  const baseURL$ = useMemo(() => new Subject<string>(), [])
   const serverAddr$ = useMemo(() => new Subject<string>(), [])
   const serverPort$ = useMemo(() => new Subject<string>(), [])
-
-  useEffect(() => {
-    const sub = baseURL$
-      .pipe(debounceTime(500))
-      .subscribe(baseURL => {
-        setBaseURL(baseURL)
-        pushMessage(i18n.t('restartAppMessage'), 'info')
-      })
-    return () => sub.unsubscribe()
-  }, [])
 
   useEffect(() => {
     const sub = serverAddr$
@@ -225,22 +213,6 @@ export default function Settings() {
               }
               label={i18n.t('servedFromReverseProxyCheckbox')}
               sx={{ mb: 1 }}
-            />
-            <TextField
-              fullWidth
-              label={i18n.t('urlBase')}
-              defaultValue={baseURL}
-              onChange={(e) => {
-                let value = e.currentTarget.value
-                if (value.startsWith('/')) {
-                  value = value.substring(1)
-                }
-                if (value.endsWith('/')) {
-                  value = value.substring(0, value.length - 1)
-                }
-                baseURL$.next(value)
-              }}
-              sx={{ mb: 2 }}
             />
           </Grid>
         </Grid>
