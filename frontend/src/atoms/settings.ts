@@ -107,12 +107,6 @@ export const appTitleState = atomWithStorage(
 )
 
 export const serverAddressAndPortState = atom((get) => {
-  if (get(servedFromReverseProxySubDirState)) {
-    return `${get(serverAddressState)}/${get(servedFromReverseProxySubDirState)}/`
-  }
-  if (get(servedFromReverseProxyState)) {
-    return `${get(serverAddressState)}`
-  }
   return `${get(serverAddressState)}:${get(serverPortState)}`
 })
 
